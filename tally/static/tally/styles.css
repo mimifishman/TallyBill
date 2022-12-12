@@ -1,0 +1,73 @@
+.cancel-button {
+  color: #fff;
+  text-decoration: none;
+}
+
+.cancel-button:hover {
+  color: #fff;
+  font-weight: bold;
+}
+
+.btn-details {
+  color: #e95420;
+  border-color: #e95420;
+}
+
+.xs-circle, .small-circle, .large-circle {
+  background-color: #ced4da;
+  border-radius: 50%;
+  display: inline-block;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  padding: 0rem !important;
+}
+
+.large-circle {
+  height: 50px;
+  width: 50px;
+  font-size: 0.75rem;
+  margin-right: 0.25rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.small-circle {
+  height: 40px;
+  width: 40px;
+  font-size: 0.6rem;
+  margin-right: 0.25rem !important;
+  margin-bottom: 0rem !important;
+  background-color: grey;
+}
+
+.xs-circle {
+  height: 20px;
+  width: 20px;
+  font-size: 0.6rem;
+  margin-right: 0.5rem !important;
+  margin-bottom: 0rem !important;
+  background-color: grey;
+}
+
+.modal-dialog {
+  width: 75% !important;
+  margin: auto !important;
+}
+
+.table-nopadding > :not(caption) > * > * {
+  padding: 0.2rem 0rem !important;
+}
+
+/*# sourceMappingURL=styles.css.map */
+
+label.cameraButton {
+  display: inline-block;
+  margin: 1em 0;
+
+  /* Styles to make it look like a button */
+  padding: 0.5em;
+  border: 2px solid #666;
+  border-color: #EEE #CCC #CCC #EEE;
+  background-color: #DDD;
+}
+

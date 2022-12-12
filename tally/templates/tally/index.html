@@ -1,0 +1,53 @@
+{% extends "tally/layout.html" %}
+{% load static %}
+
+{% block main %}
+    <div class=" container mt-3">       
+       
+        <div>
+            <h1 class="text-primary mb-3 bolder">{% if user.is_authenticated %}Scan Receipt {% else %} Login to Scan Receipts {% endif %}</h1>
+        </div>
+        <div>
+            <form id="form_img" method='post' enctype="multipart/form-data">
+                {% csrf_token %} 
+                <input type="file" accept="image/*" capture id="image" name="image" style="display:none">               
+            </form>
+        </div> 
+        <div class="text-center">            
+            <div class="spinner-border text-primary" role="status" style="display:none" id="spinner">
+                <span class="visually-hidden">Loading...</span>
+            </div>   
+            <div>    
+                <button class="btn" id="img-button"  {% if not user.is_authenticated %} disabled=true {% endif %}>          
+                    <img class="img-fluid " src="{% static 'tally/images/camera.png' %}" alt="Camera" id="cameraimg" >
+                </button> 
+            </div>          
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {          
+            // expaned the navbar on the index page 
+            document.getElementById('navbarSupportedContent').classList.remove('collapse'); 
+            document.getElementById('nav_btn').style.display = 'none';
+            // hide the spinner 
+            document.getElementById('spinner').style.display = 'none'; 
+          
+            
+            // open the camera when clicking on the camera image  
+            document.getElementById('cameraimg').addEventListener('click',()=>{
+                document.getElementById('image').click();
+            })    
+            // submit the camera image
+            document.getElementById('image').addEventListener('change', () => {               
+                document.getElementById('form_img').submit();
+                // show the spinner
+                document.getElementById('spinner').style.display = 'block'; 
+                document.getElementById('img-button').disabled = true; 
+            })
+        })
+    </script>
+{% endblock %}
+

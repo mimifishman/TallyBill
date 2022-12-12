@@ -1,0 +1,289 @@
+{% extends "tally/layout.html" %}
+{% load widget_tweaks %}
+{% load filters %}
+{% load static %}
+
+{% block main %}
+
+{% if type == 'new_bill' or type == 'edit_header' %}
+    <div id = "bill_header_new">
+        <h2 class="my-3 text-primary">{% if type == 'new_bill' %} New Bill {% elif type == 'edit_header' %} Update Bill {% endif %} </h2> 
+        <form action="{% if type == 'new_bill' %} {% url 'bill_header' %} {% elif type == 'edit_header' %} {% url 'bill_header_update' bill_id %}  {% endif %} " method="post" method="post">
+            {% csrf_token %}
+            <div class="row g-3 align-items-center mb-2">
+                <div class="col-2 col-md-1"> 
+                {{ form.title|label_with_classes:"col-form-label text-primary" }}                          
+                </div>
+                <div class="col-auto">
+                    {% if form.title.errors %} 
+                        {{form.title|attr:"class:form-control is-invalid"|attr:"autofocus" }}   
+                        {% for error in form.title.errors %}
+                            <small class="invalid-feedback">{{ error|escape }}</small>       
+                        {% endfor %}
+                    {% else %}                  
+                        {{ form.title|attr:"autofocus" }} 
+                    {% endif %}
+                </div>            
+            </div>     
+        
+            <div class="row g-3 align-items-center mb-2">
+                <div class="col-2 col-md-1"">
+                    {{ form.tip|label_with_classes:"col-form-label text-primary" }} 
+                </div>
+                <div class="col-auto">              
+                    {% if form.tip.errors %} 
+                        {{form.tip|attr:"class:form-control is-invalid"}}   
+                        {% for error in form.tip.errors %}
+                            <small class="invalid-feedback">{{ error|escape }}</small>       
+                        {% endfor %}
+                    {% else %}                  
+                        {{ form.tip }}
+                        {% if type == 'edit_header' %}                         
+                            <input name='update_tips' id='update_tips' class="col-auto form-check-input" type="checkbox">
+                            <label class="col-auto form-check-label text-primary"><small>Update all users tip%</small></label>
+                        {% endif %}    
+                    {% endif %}   
+                </div>            
+            </div>  
+
+            <div class="row g-3 align-items-center mb-2">
+                <div class="col-2 col-md-1"">
+                    {{ form.discount|label_with_classes:"col-form-label text-primary" }} 
+                </div>
+                <div class="col-auto">              
+                    {% if form.discount.errors %} 
+                        {{form.discount|attr:"class:form-control is-invalid"}}   
+                        {% for error in form.discount.errors %}
+                            <small class="invalid-feedback">{{ error|escape }}</small>       
+                        {% endfor %}
+                    {% else %}                  
+                        {{ form.discount }}
+                        {% if type == 'edit_header' %}                         
+                            <input name='update_discounts' id='update_discounts' class="col-auto form-check-input" type="checkbox">
+                            <label class="col-auto form-check-label text-primary"><small>Update all Items discount%</small></label>
+                        {% endif %}    
+                    {% endif %}   
+                </div>            
+            </div>  
+
+            <div class="row g-3 align-items-center mb-2">
+                <div class="col-2 col-md-1"">
+                    {{ form.tax|label_with_classes:"col-form-label text-primary" }}  
+                </div>
+                <div class="col-auto">              
+                    {% if form.tax.errors %} 
+                        {{form.tax|attr:"class:form-control is-invalid"}}   
+                        {% for error in form.tax.errors %}
+                            <small class="invalid-feedback">{{ error|escape }}</small>       
+                        {% endfor %}
+                    {% else %}                  
+                        {{ form.tax}} 
+                    {% endif %}   
+                </div>            
+            </div> 
+           
+            <div>
+                <input class="btn btn-primary mt-1" type="submit" value="{% if type == 'new_bill' %} Create {% elif type == 'edit_header' %} Update {% endif %}">  
+                {% if no_cancel == None %}               
+                    <button class="btn btn-secondary ms-2" type="button" onclick="history.back()">Cancel</button>    
+                {% endif %}                  
+            </div>           
+        </form> 
+    {% endif %}
+    
+    {% if type == 'bill_view' %}
+        <div id = "bill">
+            <tag id="bill_id" class="d-none">{{bill_header.id}}</tag> 
+            <tag id="bill_symbol" class="d-none">{{bill_header.currency_symbol}}</tag> 
+            <tag id="bill_discount" class="d-none">{{bill_header.discount}}</tag> 
+
+            <div id="bill_header">                
+                <div class='d-flex' id="bill_header_summary"> 
+                        <a class="btn-link text-decoration-none col-auto" role="button" data-bs-toggle="collapse" href="#header_details">
+                        <H5 class="text-primary my-3"> Bill {{bill_header.id}} - {{bill_header.title}} <img id="chevron-image" style="text-decoration: underline;" src="{% static 'tally/images/chevron-double-right.svg' %}"> </H5>
+                        </a>   
+                        <img class="ms-auto col-auto my-3" src="{% static 'tally/images/share.svg' %}" alt="Share" id="share" role='button' width="20" height="20"></img>  
+                </div>                  
+                <div id="header_details" class="collapse" >                
+                    <div class="row g-3 align-items-center">                    
+                        <h6 class="col-auto">{{bill_header.user.first_name}} {{bill_header.user.last_name}}</h6>
+                        <h6 class="col-auto">{{bill_header.date|date:"M d, Y" }}</h6>                                                      
+                    </div>
+                    <div class="row g-3 align-items-center mb-1">
+                        <h6 id="bill_tip" class="col-auto"><span class="text-primary">Tip: </span>{{bill_header.tip}}%</h6>
+                        <h6 class="col-auto"><span class="text-primary">Tax: </span>{{bill_header.tax}}%</h6> 
+                        <h6 class="col-auto"><span class="text-primary">Disc: </span>{{bill_header.discount}}%</h6>                                             
+                        <H6 class="col-auto ps-0">
+                            <a id = 'edit_header' class="btn btn-link" href="{% url 'bill_header_update' bill_header.id %}" role="button">Edit</a>
+                        </H6>  
+                    </div>
+                </div> 
+            </div>
+        </div>
+        <div id="bill_details">
+            <div class="d-flex" id="bill_functions">
+                <img src="{% static 'tally/images/people.svg' %}" alt="People" id="people_show_main" role='button'  width="25" height="25" data-bs-toggle="collapse" data-bs-target=".multi-collapse" >
+                <span id='people_collapse_main' class="text-primary">+</span>
+                <button id ='total_bill' class="btn btn-link ms-auto"  role="button"></button>
+            </div>
+            
+            <div id="bill_lines">             
+                <div> 
+                    <table id="table-lines" class="table table-borderless table-nopadding">
+                        <tbody id="tbody-lines">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="text-center mt-2">
+                <button id="add_line" class="btn btn-link mb-1"> + Add Item</a>
+            </div>
+
+            <hr class="mt-3">
+            <div id="user_list" class="d-flex flex-wrap text-center">
+                <button id="add_user" class="large-circle"> + Add</button>              
+            </div>
+            <tag id="bill_users_total" class="d-none"></tag>
+        </div> 
+
+        <div id="bill_totals" style="display:none" > 
+            <hr> 
+            <div>
+                <button id="show_bill_details" class="btn btn-link p-0 ms-0"><img  width="30" height="30" src="{% static 'tally/images/arrow-left.svg'%}"></button>
+            </div>  
+             
+            <div id="bill_totals_user"> 
+               
+            </div>                   
+        </div>
+       
+
+        <!-- Modal Line Form  -->
+        <div class="modal" id="line_modal" tabindex="-1" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 id="line_modal_title" class="modal-title text-center text-primary w-100"></h5>
+                    </div>
+                    <div class="modal-body" id="line_item_modal"> 
+                        <form id="line_form_modal"  onSubmit="return false">                                          
+                        {% csrf_token %}
+                            <div class="form-group mb-3 form-floating">
+                                {% if form.item.errors %} 
+                                    {{form.item|attr:"class:form-control is-invalid"}}   
+                                    {% for error in form.item.errors %}
+                                            <small class="invalid-feedback">{{ error|escape }}</small>       
+                                    {% endfor %}
+                                {% else %}
+                                    {{form.item|attr:"autofocus"}}  
+                                {% endif %}
+                                <label class="text-muted" for="id_item">Item</label>   
+                            </div>  
+                            <div class="form-group mb-3 form-floating">
+                                {% if form.total.errors %} 
+                                    {{form.total|attr:"class:form-control is-invalid"}}   
+                                    {% for error in form.total.errors %}
+                                        <small class="invalid-feedback">{{ error|escape }}</small>       
+                                    {% endfor %}
+                                {% else %}
+                                    {{form.total}}  
+                                {% endif %} 
+                                <label class="text-muted" for="id_total">Total</label>  
+                            </div>  
+                            <div class="form-group mb-3 form-floating">              
+                                {% if form.quantity.errors %} 
+                                    {{form.quantity|attr:"class:form-control is-invalid"}}   
+                                    {% for error in form.quantity.errors %}
+                                        <small class="invalid-feedback">{{ error|escape }}</small>       
+                                    {% endfor %}
+                                {% else %}
+                                    {{form.quantity}}  
+                                {% endif %}
+                                <label class="text-muted" for="id_quantity">Quantity</label>   
+                            </div>
+                            <div class="form-group mb-3 form-floating">                                         
+                                {% if form.discount.errors %} 
+                                    {{form.discount|attr:"class:form-control is-invalid"}}   
+                                    {% for error in form.discount.errors %}
+                                        <small class="invalid-feedback">{{ error|escape }}</small>       
+                                    {% endfor %}
+                                {% else %}
+                                    {{form.discount}}  
+                                {% endif %}                                 
+                                <label class="text-muted" for="id_discount">Discount%</label> 
+                            </div>
+
+                            <div>  
+                                <input id="id_line" type="hidden" value=0>             
+                                <input class="btn btn-primary me-2" type="submit" value="Save">
+                                <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Cancel</button>                  
+                            </div>
+                        </form>      
+                    </div>                   
+                </div>
+            </div>    
+        </div> 
+
+        <!-- ---------------------------- -->
+
+         <!-- Modal User Form  -->
+         <div class="modal" id="user_modal" tabindex="-1" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-sm modal-dialog-centered">
+                <div class="modal-content">                                       
+                    <div class="modal-header">                        
+                        <h5 id="user_modal_title" class="modal-title text-center text-primary w-100"></h5>
+                    </div>
+                    <div class="modal-body">                            
+                        <form id="user_form_modal" onSubmit="return false">                                          
+                        {% csrf_token %}
+                            <div class="form-group mb-3">
+                                    {{form_user.name|attr:"autofocus"}}  
+                            </div>  
+                            <div class="form-group mb-3">
+                                    {{form_user.tip}}  
+                            </div>
+                            <div class="d-flex">  
+                                <input id="id_user" type="hidden" value=0>        
+                                <input class="btn btn-primary me-2" type="submit" value="Save">                                
+                                <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Cancel</button> 
+                                <img src="{% static 'tally/images/trash.svg' %}" alt="Delete" id="btn_user_del" role=button  
+                                style="visibility:hidden"   width="40" height="40" class="ms-auto">
+                            </div>
+                        </form>      
+                    </div>                   
+                </div>
+            </div>    
+        </div> 
+
+        
+        <!-- ---------------------------- -->      
+
+    {% endif %} 
+
+     
+    
+
+    {% if type == 'mybills_view' %}
+        <div id="bill_list" class="mt-3">  
+                    {% for bill in bills %}
+                        <h6 class="mb-3">                  
+                            <a href="{% url 'bill' bill.id %}" class="text-decoration-none link-secondary mb-5">
+                                {{ bill.id }} &ensp; {{ bill.date|date:"M d, Y h:i A"   }} &ensp; {{ bill.title }}
+                            </a>
+                        </h6>
+                    {% empty %}
+                        <H4 class="text-center text-primary mt-2" > No bills found. <a href="{% url 'bill_header'%}"> Start a new bill</a></H4>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+{% endblock %}
+
+
+{% block script %}    
+    <script src="{% static 'tally/bill.js' %}"></script>
+{% endblock %}

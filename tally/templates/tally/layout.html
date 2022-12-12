@@ -1,0 +1,171 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <!-- temp link to remove no favicon error -->
+        <link rel="shortcut icon" href="#">
+        <meta name="viewport" content="width=device-width, initial-scale=1">   
+        <link href="{% static 'tally/styles.css' %}" rel="stylesheet">
+        <link href="{% static 'tally/bootstrap.css' %}" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        <!-- jquery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+       
+        <!-- Favicon -->
+        <link rel="apple-touch-icon" sizes="180x180" href="{% static 'tally/favicon/apple-touch-icon.png' %}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{% static 'tally/favicon/favicon-32x32.png' %}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{% static 'tally/favicon/favicon-16x16.png' %}">
+        <link rel="manifest" href="{% static 'tally/favicon/site.webmanifest' %}">
+        
+        <title>{% block title %}TallyBill{% endblock %}</title>      
+        
+        {% block script %}
+        {% endblock %} 
+    </head>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // Show the join bill form modal
+            document.getElementById('join_bill').addEventListener('click', () => {
+            $('#join_modal').modal('show');  
+            });
+            // add an event listener to the join form submit 
+            document.getElementById('join_form_modal').addEventListener('submit', () => {
+            let bill_id = document.getElementById('join_bill_number').value; 
+            window.location.href='../bill/' + bill_id;  
+            $('#line_modal').modal('hide')
+            }); 
+        })       
+   </script>  
+
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{% url 'index'%}">
+                    <img src="{% static 'tally/images/bill.svg' %}" alt="" width="40" height="34">
+                    TallyBill
+                </a>
+                <button class="navbar-toggler" type="button"  id="nav_btn" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" 
+                        aria-controls="navbarSupportedContent" aria-expanded="true" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        {% if user.is_authenticated %}
+                            <li class="nav-item">                            
+                                <button id=newbill class="btn btn-link text-decoration-none ps-0"><a class="nav-link p-0" aria-current="page" 
+                                    href="{% url 'bill_header' %}">New Bill</a></button>
+                            </li>
+                        {% endif %}                        
+                        <li class="nav-item">
+                            <button id='join_bill' class="nav-link btn btn-link">Join Bill</button>
+                        </li>
+                        {% if user.is_authenticated %}
+                            <li class="nav-item">
+                                <a class="nav-link " href="{% url 'my_bills' %}">My Bills</a>
+                            </li>
+                        {% endif %}    
+                        <li class="nav-item">
+                            <hr class="w-25" style="color:white"/>
+                        </li>
+                    </ul>  
+
+                    <ul class="navbar-nav mb-2 mb-lg-0">
+                        {% if  user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">                            
+                                {{user.first_name}} 
+                                <img src="{% static 'tally/images/settings.svg' %}" alt="" width="25" height="25"> 
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a  class="dropdown-item primary" href="{% url 'settings' %}">Settings</a></li>
+                            <li><a class="dropdown-item primary" href="{% url 'password' %}">Update Password</a></li>                          
+                            </ul>
+                        </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                            </li>                    
+                        {% else %} 
+                            <li class="nav-item">
+                                <a class="nav-link"  href="{% url 'login' %}">Login</a>
+                            </li>                                
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'register' %}">Register</a>
+                            </li>
+                        {% endif %}   
+                    </ul>   
+
+                </div>
+            </div>
+        </nav>
+        {% if messages %}
+            <header> 
+                <div class="alert alert-danger border text-center" role="alert">                     
+                        {% for message in messages %}                                    
+                            <h6{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</h6>
+                        {% endfor %}          
+                </div>                                           
+            </header>
+        {% endif %}
+        
+        
+        <div id="json-error_div" class="alert alert-danger border text-center" style="display:none;"  role="alert">
+            <h6 id="json_error"></h6>
+        </div>  
+        
+        <main class="container-fluid">
+            <!--  modal delete bootstrap-->
+            <div  id="delete-modal" class="modal fade" tabindex="-1" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-sm modal-dialog-centered" >
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <p id="delete-modal-text"></p>
+                        </div>
+                        <div class="modal-footer">
+                            <tag hidden id="delete_modal_id" >0</tag>
+                            <tag hidden id="delete_modal_type"></tag>
+                            <button id="delete-modal-btn-del"  data-bs-dismiss="modal" type="button" data-bs-dismiss="modal" class="btn btn-primary">Yes</button>
+                            <button id="delete-modal-btn-cancel" type="button" class="btn btn-secondary" data-bs-dismiss="modal" >No</button>
+                        </div>
+                    </div>
+                </div>                
+            </div>
+            <!-- --------------------------->
+
+             <!--  modal join bill bootstrap-->
+            <div class="modal fade" id="join_modal" tabindex="-1" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-sm modal-dialog-centered">
+                    <div class="modal-content">                                       
+                        <div class="modal-header">                        
+                            <h5 id="join_modal_title" class="modal-title text-center text-primary w-100"> Join Bill</h5>
+                        </div>
+                        <div class="modal-body">                            
+                            <form id="join_form_modal" onSubmit="return false">                                          
+                            {% csrf_token %}
+                                <div class="form-group mb-3">                                    
+                                    <input id="join_bill_number"  class="form-control" type="number" placeholder="Bill Number" autofocus maxlength="20">  
+                                </div>                                  
+                                <div class="d-flex">                                     
+                                    <input class="btn btn-primary me-2" type="submit" value="Join">                                
+                                    <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Cancel</button> 
+                                </div>
+                            </form>      
+                        </div>                   
+                    </div>
+                </div>    
+            </div> 
+    
+            <!-- ----------------------- -->
+
+            {% block main %}
+            {% endblock %}
+        </main>
+        
+    </body>
+   
+</html>
+
