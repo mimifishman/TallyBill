@@ -1,13 +1,13 @@
-# [TallyBill](http://www.tallybill.online)
+# [TallyBill](https://www.tallybill.online)
 
 
-## Distinctiveness and Complexity 
+## Application Overview 
 
 The application streamlines the process of splitting bills when a group of people go out to a restaurant or bar. It has a clean and simple design and uses visual colors to allow the users to split the bill quickly and easily among multiple people. It uses Veryfi OCR API to read the bill that the user scans with their mobile device, this enables the items to be entered into the database automatically. The user can enter items manually and edit items. 
 
 It is a web application that has the look and feel of a native mobile app by using the JavaScript fetch API extensively with csrftoken to create a seamless experience for the user without reloading the page. I have incorporated Django forms, models, templates for unified development. The application uses the bootstrap library to ensure that it is mobile responsive.
 
-##  What's contained in each file you added
+##  What's contained in each file
 
 ### Files:
 - Python
@@ -85,8 +85,8 @@ It is a web application that has the look and feel of a native mobile app by usi
 - Media
     -media/documents directory - Temporarily stores the scanned receipts.
 
-## How to run your application 
-1. Clone the git repository <https://github.com/me50/mimifishman.git>
+## How to run the application 
+1. Clone the git repository <https://github.com/mimifishman/TallyBill>
 1. Install project dependencies by running pip install -r requirements.txt.
 2. Make and apply migrations by running python `manage.py` makemigrations and python `manage.py` migrate.
 3. Create superuser for Django admin by running python `manage.py` createsuperuser.
